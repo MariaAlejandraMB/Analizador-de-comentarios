@@ -1,0 +1,6 @@
+streamlit
+textblob
+deep-translator
+pymongo
+nltk
+python-dotenv
