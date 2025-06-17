@@ -7,6 +7,9 @@ from pymongo import MongoClient
 import json
 from bson import json_util
 import nltk
+from PIL import Image
+
+
 
 # Constantes
 CATEGORIAS = ["Electrodomésticos", "Ropa", "Jugueteria", "Hogar", "Calzado","Tecnología"]
@@ -124,8 +127,69 @@ def mostrar_historial():
 # --------------------------
 # Interfaz de usuario
 # --------------------------
-st.set_page_config(page_title="Analizador de comentarios", layout="centered")
-st.title("Analizador de comentarios Grupo EXITO")
+st.set_page_config(page_title="🔎Analizador de comentarios", layout="centered")
+st.title("🔎Analizador de comentarios - Grupo EXITO")
+
+
+    
+st.markdown("""
+<style>
+    /* Color de fondo amarillo */
+    .stApp {
+        background-color: #FFFF00;
+    }
+    
+    /* Contenedores principales en negro */
+    .stContainer, .css-1lcbmhc, .stTextArea, .stSelectbox, .stDataFrame {
+        background-color: #000000 !important;
+        color: white !important;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    /* Texto en blanco para contraste */
+    .stTextInput, .stTextArea, .stSelectbox, .stMarkdown, .stDataFrame {
+        color: white !important;
+    }
+    
+    /* Títulos y encabezados */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000000 !important;
+    }
+    
+    /* Botones personalizados */
+    .stButton>button {
+        background-color: #000000;
+        color: white;
+        border: 2px solid white;
+        border-radius: 5px;
+    }
+    
+    /* Expanders personalizados */
+    .stExpander {
+        background-color: #000000;
+        border: 1px solid white;
+    }
+    
+    /* Métricas personalizadas */
+    .stMetric {
+        background-color: #000000;
+        color: white;
+        border: 1px solid white;
+        border-radius: 5px;
+    }
+    
+    /* Cambiar color del texto en los selectboxes */
+    .stSelectbox label {
+        color: white !important;
+    }
+    
+    /* Cambiar color del texto en los textareas */
+    .stTextArea label {
+        color: white !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Formulario principal
 with st.form("formulario_analisis"):
@@ -185,3 +249,20 @@ if 'historial' in st.session_state and st.session_state.historial:
     cols[0].metric("Total análisis", len(df_stats))
     cols[1].metric("Positivos", len(df_stats[df_stats['Sentimiento'] == 'Positivo']))
     cols[2].metric("Negativos", len(df_stats[df_stats['Sentimiento'] == 'Negativo']))
+
+# # Exportar a JSON
+# if st.button("📤 Exportar historial completo a JSON"):
+#     collection = conectar_mongodb()
+#     if collection is not None:
+#         try:
+#             historial_completo = list(collection.find({}, {"_id": 0}).sort("Fecha", -1))
+#             st.download_button(
+#                 label="Descargar JSON",
+#                 data=json.dumps(historial_completo, indent=2, default=json_util.default),
+#                 file_name="historial_comentarios_completo.json",
+#                 mime="application/json"
+#             )
+#         except Exception as e:
+#             st.error(f"Error al exportar datos: {str(e)}")
+    
+
