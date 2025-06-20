@@ -9,8 +9,6 @@ from bson import json_util
 import nltk
 from PIL import Image
 
-
-
 # Constantes
 CATEGORIAS = ["Electrodomésticos", "Ropa", "Jugueteria", "Hogar", "Calzado","Tecnología"]
 CANALES = ["Web", "Redes Sociales", "Call Center", "Tienda física"]
@@ -99,13 +97,15 @@ def inicializar_historial():
                 item['Canal'],
                 item['Sentimiento'],
                 item['Polaridad'],
+                item.get('Id_Cliente', 'N/A'),  # Usar 'N/A' si no existe
                 item['Fecha']
             )
 
-def agregar_al_historial(comentario, categoria, canal, sentimiento, polaridad, fecha=None):
+def agregar_al_historial(comentario, categoria, canal, sentimiento, polaridad, id_cliente='N/A', fecha=None):
     """Agrega un registro al historial"""
     fecha = fecha or datetime.now()
     registro = {
+        "Id_Cliente": id_cliente,
         "Fecha": fecha.strftime("%Y-%m-%d %H:%M"),
         "Comentario_Original": comentario[:100] + "..." if len(comentario) > 100 else comentario,
         "Categoría": categoria,
@@ -130,8 +130,6 @@ def mostrar_historial():
 st.set_page_config(page_title="🔎Analizador de comentarios", layout="centered")
 st.title("🔎Analizador de comentarios - Grupo EXITO")
 
-
-    
 st.markdown("""
 <style>
     /* Color de fondo amarillo */
@@ -193,6 +191,9 @@ st.markdown("""
 
 # Formulario principal
 with st.form("formulario_analisis"):
+    
+    id_cliente = st.text_input("ID del Cliente (opcional):", placeholder="Ingrese el ID del cliente si está disponible")
+    
     comentario = st.text_area("Ingrese el comentario:", height=150, 
                             placeholder="Escribe aquí el comentario del cliente...")
     
@@ -201,6 +202,8 @@ with st.form("formulario_analisis"):
         categoria = st.selectbox("Categoría del producto:", CATEGORIAS)
     with col2:
         canal = st.selectbox("Canal de contacto:", CANALES)
+    
+    
     
     if st.form_submit_button("Analizar Comentario"):
         if comentario.strip():
@@ -218,6 +221,7 @@ with st.form("formulario_analisis"):
             
             # Guardar en MongoDB y actualizar historial
             registro_mongo = {
+                "Id_Cliente": id_cliente if id_cliente else 'N/A',
                 "Fecha": datetime.now(),
                 "Comentario_Original": comentario,
                 "Texto_Traducido": texto_traducido,
@@ -233,7 +237,7 @@ with st.form("formulario_analisis"):
             guardar_en_mongodb(registro_mongo)
             
             inicializar_historial()
-            agregar_al_historial(comentario, categoria, canal, sentimiento, polaridad)
+            agregar_al_historial(comentario, categoria, canal, sentimiento, polaridad, id_cliente if id_cliente else 'N/A')
             
             st.subheader("📋 Historial de Análisis")
             mostrar_historial()
